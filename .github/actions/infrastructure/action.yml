@@ -55,8 +55,8 @@ runs:
       shell: bash
       run: terraform init -backend-config="resource_group_name=${{ inputs.tfstate-rg-name }}" -backend-config="storage_account_name=${{ inputs.tfstate-sa-name }}"
       working-directory: ${{ inputs.working-directory }}
-      with:
-        GH_TOKEN: {{ inputs.GITHUB_TOKEN }}
+      env:
+        GH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
 
     - name: Terraform plan
       shell: bash
