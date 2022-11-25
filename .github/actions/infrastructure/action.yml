@@ -23,6 +23,9 @@ inputs:
     required: false
     description: Directory of the terraform files.
     default: infrastructure
+  GITHUB_TOKEN:
+    required: true
+    description: GitHub token.
 
 outputs:
   resource-group-name:
@@ -33,8 +36,7 @@ outputs:
     value: ${{ steps.tf_output.outputs.function-app-name }}
 
 runs:
-  using: composite
-
+  using: composite    
   steps:
     - uses: actions/checkout@v3
 
@@ -53,6 +55,8 @@ runs:
       shell: bash
       run: terraform init -backend-config="resource_group_name=${{ inputs.tfstate-rg-name }}" -backend-config="storage_account_name=${{ inputs.tfstate-sa-name }}"
       working-directory: ${{ inputs.working-directory }}
+      with:
+        GH_TOKEN: {{ inputs.GITHUB_TOKEN }}
 
     - name: Terraform plan
       shell: bash

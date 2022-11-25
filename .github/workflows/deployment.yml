@@ -66,7 +66,7 @@ jobs:
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
       - name: Create SSH key
@@ -84,7 +84,7 @@ jobs:
           deploy: false
           tfstate-rg-name: ${{ secrets.TERRAFORM_AZ_STORAGE_RG_NAME }}
           tfstate-sa-name: ${{ secrets.TERRAFORM_AZ_STORAGE_ACCOUNT_NAME }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
   build_function:
     runs-on: ubuntu-latest
