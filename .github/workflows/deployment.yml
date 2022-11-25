@@ -74,6 +74,7 @@ jobs:
           install -m 600 -D /dev/null ~/.ssh/id_ed25519
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          cat ~/.ssh/known_hosts
 
       - uses: actions/checkout@v3
       
