@@ -18,12 +18,12 @@ terraform {
 }
 
 module "outage_module" {
-  source                     = "git@github.com:bkkas/azure-function-module.git"
-  company                    = var.company
-  environment                = var.environment
-  env_instance_number        = var.env_instance_number
-  application_name           = var.application_name
-  location                   = var.location
+  source              = "git@github.com:bkkas/azure-function-module.git"
+  company             = var.company
+  environment         = var.environment
+  env_instance_number = var.env_instance_number
+  application_name    = var.application_name
+  location            = var.location
 
   tags = {
     CostCenter : "Teknologi og fornyelse",
