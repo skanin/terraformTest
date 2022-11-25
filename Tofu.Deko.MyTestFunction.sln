@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32922.545
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tofu.Deko.MyTestFunction", "Tofu.Deko.MyTestFunction\Tofu.Deko.MyTestFunction.csproj", "{B526707A-8366-4A6A-98D7-2F6972107BBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tofu.Deko.MyTestFunction.Test", "Tofu.Deko.MyTestFunction.Test\Tofu.Deko.MyTestFunction.Test.csproj", "{5CC86D63-29DE-409B-9646-2B1E9C8EDE1A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B526707A-8366-4A6A-98D7-2F6972107BBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B526707A-8366-4A6A-98D7-2F6972107BBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B526707A-8366-4A6A-98D7-2F6972107BBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B526707A-8366-4A6A-98D7-2F6972107BBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CC86D63-29DE-409B-9646-2B1E9C8EDE1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CC86D63-29DE-409B-9646-2B1E9C8EDE1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CC86D63-29DE-409B-9646-2B1E9C8EDE1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CC86D63-29DE-409B-9646-2B1E9C8EDE1A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5305353B-4621-44C8-95EB-B139F9CD6020}
+	EndGlobalSection
+EndGlobal
