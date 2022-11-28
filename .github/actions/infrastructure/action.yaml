@@ -39,10 +39,6 @@ runs:
   using: composite    
   steps:
     - uses: actions/checkout@v3
-    
-    - name: Setup private repo credentials for private modules
-      run: git config --global url."https://git:${{ inputs.github-token }}@github.com/bkkas".insteadOf "https://github.com/bkkas"
-      shell: sh
 
     - name: Setup terraform
       uses: hashicorp/setup-terraform@v2
