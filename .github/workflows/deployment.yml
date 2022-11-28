@@ -71,6 +71,7 @@ jobs:
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_ed25519
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > ~/.ssh/id_ed25519.pub
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
 
       - uses: actions/checkout@v3
@@ -86,7 +87,8 @@ jobs:
           github-token: ${{ secrets.GH_TOKEN }}
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           ssh-known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
-          
+          ssh-public-key: ${{ secrets.SSH_PUBLIC_KEY }}
+
   build_function:
     runs-on: ubuntu-latest
     steps:
