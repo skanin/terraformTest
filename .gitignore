@@ -1,5 +1,5 @@
 .vs
-infrastructure
+infrastructure/*
 Tofu.Deko.*/obj
 
 # terraform

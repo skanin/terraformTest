@@ -1,0 +1,83 @@
+name: Infrastructure
+description: Terraform validation and deployment
+author: Peder Bøen
+
+inputs:
+  environment:
+    required: true
+    description: Environment name.
+  deploy:
+    required: true
+    description: Whether the terraform configuration should be deployed.
+  tfstate-rg-name:
+    required: true
+    description: Name of the resource group where the terraform state is stored.
+  tfstate-sa-name:
+    required: true
+    description: Name of the storage account where the terraform state is stored.
+  terraform-version:
+    required: false
+    description: Terraform version
+    default: 1.x
+  working-directory:
+    required: false
+    description: Directory of the terraform files.
+    default: infrastructure
+  github-token:
+    required: true
+    description: GitHub token.
+
+outputs:
+  resource-group-name:
+    description: Name of the resource group containing the function app.
+    value: ${{ steps.tf_output.outputs.resource-group-name }}
+  function-app-name:
+    description: Name of the function app.
+    value: ${{ steps.tf_output.outputs.function-app-name }}
+
+runs:
+  using: composite    
+  steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ inputs.terraform-version }}
+        terraform_wrapper: false
+
+    - name: Check formatting
+      shell: bash
+      run: terraform fmt -check
+      working-directory: ${{ inputs.working-directory }}
+    
+    - name: Terraform init
+      shell: bash
+      run: terraform init -backend-config="resource_group_name=${{ inputs.tfstate-rg-name }}" -backend-config="storage_account_name=${{ inputs.tfstate-sa-name }}"
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Terraform plan
+      shell: bash
+      run: terraform plan -lock=false -out="${{ inputs.environment }}.tfplan"
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Terraform apply
+      id: tf_apply
+      if: ${{ inputs.deploy == 'true' }}
+      shell: bash
+      run: terraform apply -auto-approve "${{ inputs.environment }}.tfplan"
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Terraform refresh
+      if: ${{ steps.tf_apply.outcome == 'skipped' }}
+      shell: bash
+      run: terraform refresh --var-file="env/${{ inputs.environment }}.tfvars"
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Terraform output
+      id: tf_output
+      shell: bash
+      run: |
+        echo "::set-output name=resource-group-name::$(terraform output -raw rg_name)"
+        echo "::set-output name=function-app-name::$(terraform output -raw funcapp_name)"
+      working-directory: ${{ inputs.working-directory }}
