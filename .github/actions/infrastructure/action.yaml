@@ -22,7 +22,7 @@ inputs:
   working-directory:
     required: false
     description: Directory of the terraform files.
-    default: infrastructure
+    default: terraform
   github-token:
     required: true
     description: GitHub token.
