@@ -1,6 +1,7 @@
 .vs
 infrastructure/*
-Tofu.Deko.*/obj
+**/obj
+**/bin
 
 # terraform
 **.terraform.lock.hcl
