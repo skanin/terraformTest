@@ -71,7 +71,7 @@ runs:
     - name: Terraform refresh
       if: ${{ steps.tf_apply.outcome == 'skipped' }}
       shell: bash
-      run: terraform refresh --var-file="env/${{ inputs.environment }}.tfvars"
+      run: terraform refresh
       working-directory: ${{ inputs.working-directory }}
 
     - name: Terraform output
