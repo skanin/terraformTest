@@ -1,3 +1,4 @@
-.vs/*
-infrastructure/*
-Tofu.Deko.*/*
+.vs
+infrastructure
+Tofu.Deko.*
+.github
