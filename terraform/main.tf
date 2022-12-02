@@ -7,8 +7,8 @@ terraform {
   }
 
   backend "azurerm" {
-    container_name       = "tfstate"
-    key                  = "terraform.tfstate"
+    container_name = "tfstate"
+    key            = "terraform.tfstate"
   }
 
   required_version = ">= 1.1.0"
