@@ -34,7 +34,7 @@ namespace Tofu.Deko.MyTestFunction
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
             var helloWorld = await _repository.HelloWorld();
-            string responseMessage = $"{helloWorld} AzureFunction response. Id: {id}, Name: {req.Query["name"]}\nTester dette!";
+            string responseMessage = $"{helloWorld} AzureFunction response. Id: {id}, Name: {req.Query["name"]}\nTester dette! Tester igjen.";
             return new OkObjectResult(responseMessage);
         }
     }
