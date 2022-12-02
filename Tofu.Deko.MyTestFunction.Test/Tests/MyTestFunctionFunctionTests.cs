@@ -21,7 +21,7 @@ namespace Tofu.Deko.MyTestFunction.Test.IntegrationTests
 
             var result = Assert.IsType<OkObjectResult>(response);
             Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
-            Assert.Equal($"Hello World! AzureFunction response. Id: {id}, Name: {name}", result.Value.ToString());
+            Assert.Equal($"Hello World! AzureFunction response. Id: {id}, Name: {name}\nTester dette!", result.Value.ToString());
         }
     }
 }
