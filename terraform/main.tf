@@ -42,4 +42,5 @@ resource "azurerm_function_app" "az_func" {
   https_only                 = true
   enable_builtin_logging     = false
   version                    = "~4"
+  FunctionOptions__Message   = "Hello from Terraform"
 }
