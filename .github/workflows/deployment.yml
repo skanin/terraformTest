@@ -1,192 +1,38 @@
-# This workflow installs the latest version of Terraform CLI and configures the Terraform CLI configuration file
-# with an API token for Terraform Cloud (app.terraform.io). On pull request events, this workflow will run
-# `terraform init`, `terraform fmt`, and `terraform plan` (speculative plan via Terraform Cloud). On push events
-# to the "main" branch, `terraform apply` will be executed.
-#
-# Documentation for `hashicorp/setup-terraform` is located here: https://github.com/hashicorp/setup-terraform
-#
-# To use this workflow, you will need to complete the following setup steps.
-#
-# 1. Create a `main.tf` file in the root of this repository with the `remote` backend and one or more resources defined.
-#   Example `main.tf`:
-#     # The configuration for the `remote` backend.
-#     terraform {
-#       backend "remote" {
-#         # The name of your Terraform Cloud organization.
-#         organization = "example-organization"
-#
-#         # The name of the Terraform Cloud workspace to store Terraform state files in.
-#         workspaces {
-#           name = "example-workspace"
-#         }
-#       }
-#     }
-#
-#     # An example resource that does nothing.
-#     resource "null_resource" "example" {
-#       triggers = {
-#         value = "A example resource that does nothing!"
-#       }
-#     }
-#
-#
-# 2. Generate a Terraform Cloud user API token and store it as a GitHub secret (e.g. TF_API_TOKEN) on this repository.
-#   Documentation:
-#     - https://www.terraform.io/docs/cloud/users-teams-organizations/api-tokens.html
-#     - https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets
-#
-# 3. Reference the GitHub secret in step using the `hashicorp/setup-terraform` GitHub Action.
-#   Example:
-#     - name: Setup Terraform
-#       uses: hashicorp/setup-terraform@v1
-#       with:
-#         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
-name: DeployMyTestFunction
-
-env:
-  OUTPUT_PATH: ${{ github.workspace }}/mytestfunction
+name: Build and deploy dotnet core app to Azure Function App
 
 on:
-  workflow_dispatch:
   push:
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+  workflow_dispatch:
 
+env:
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
+  DOTNET_VERSION: '6.0.x' # set this to the dotnet version to use
 
 jobs:
-
-  validate-infrastructure:
-    runs-on: ubuntu-latest
-
-    environment: dev
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
-      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  build-and-deploy:
+    runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@v2
 
-      - uses: webfactory/ssh-agent@v0.7.0
-        with:
-            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      
-      - name: Validate infrastructure
-        uses: ./.github/actions/infrastructure
-        with:
-          environment: dev
-          deploy: false
-          tfstate-rg-name: ${{ secrets.TERRAFORM_AZ_STORAGE_RG_NAME }}
-          tfstate-sa-name: ${{ secrets.TERRAFORM_AZ_STORAGE_ACCOUNT_NAME }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          github-token: ${{ secrets.GH_TOKEN }}
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          ssh-known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
-          ssh-public-key: ${{ secrets.SSH_PUBLIC_KEY }}
-
-  build_function:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup .NET 6.0
+      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 6.0.x
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Run tests
-        run: dotnet test --verbosity minimal
-
-      - name: ouput path
-        shell: bash
-        run: echo ${{ env.OUTPUT_PATH }}
-        
-      - name: Publish functions
-        run: dotnet publish --configuration Release --output ${{ env.OUTPUT_PATH }}
-
-      - name: Package functions
-        uses: actions/upload-artifact@v2
+      - name: 'Resolve Project Dependencies Using Dotnet'
+        shell: pwsh
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          dotnet build --configuration Release --output ./output
+          popd
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v1
+        id: fa
         with:
-          name: functions
-          path: ${{ env.OUTPUT_PATH }}
-
-      - name: Uploading tools folder
-        uses: actions/upload-artifact@v2
-        with:
-          name: builds
-          path: Tools
-
-  deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: windows-latest
-    needs: [validate-infrastructure, build_function]
-
-    strategy:
-      fail-fast: false
-      matrix: 
-        environment: [dev]
-
-    environment: ${{ matrix.environment }}
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
-
-    steps:          
-      - uses: actions/checkout@v3
-
-      - name: Deploy infrastructure
-        id: infrastructure
-        uses: ./.github/actions/infrastructure
-        with:
-          environment: ${{ matrix.environment }}
-          deploy: true
-          tfstate-rg-name: ${{ secrets.TERRAFORM_AZ_STORAGE_RG_NAME }}
-          tfstate-sa-name: ${{ secrets.TERRAFORM_AZ_STORAGE_ACCOUNT_NAME }}
-
-      - name: ouput path
-        shell: bash
-        run: echo ${{ env.OUTPUT_PATH }}
-
-      - name: Download function artifacts
-        uses: actions/download-artifact@v1
-        with:
-          name: functions
-          path: ${{ env.OUTPUT_PATH }}
-
-      - name: Download function artifacts
-        uses: actions/download-artifact@v1
-        with:
-          name: builds
-          path: ${{ env.OUTPUT_PATH }}
-
-      - name: Login via Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: '{"clientId":"${{ secrets.AZURE_AD_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_CLIENT_SECRET}}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_AD_TENANT_ID }}"}'
-          enable-AzPSSession: true
-
-      - name: Enable JIT access for publishing
-        uses: azure/powershell@v1
-        with:
-          inlineScript: |
-            ${{ env.OUTPUT_PATH }}\ConfigureJIT.ps1 -WebAppName ${{ steps.infrastructure.outputs.function-app-name }} -ResourceGroupName ${{ steps.infrastructure.outputs.resource-group-name }} -RuleName "Pipeline" -Enable $true
-          azPSVersion: "latest"
-      
-      - name: Run Azure Functions Action
-        uses: azure/functions-action@v1
-        with:
-          app-name: ${{ steps.infrastructure.outputs.function-app-name }}
-          package: ${{ env.OUTPUT_PATH }}
-      
-      - name: Disable JIT access for publishing
-        if: ${{ always() }}
-        uses: azure/powershell@v1
-        with:
-          inlineScript: |
-            ${{ env.OUTPUT_PATH }}\ConfigureJIT.ps1 -WebAppName ${{ steps.infrastructure.outputs.function-app-name }} -ResourceGroupName ${{ steps.infrastructure.outputs.resource-group-name }} -RuleName "Pipeline" -Enable $false
-          azPSVersion: "latest"
+          app-name: 'SanderLindbergAzFuncTest'
+          slot-name: 'Production'
+          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
