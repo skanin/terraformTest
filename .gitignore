@@ -1,4 +1,5 @@
 .vs
+.vscode/*
 infrastructure/*
 **/obj
 **/bin

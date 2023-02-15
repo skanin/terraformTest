@@ -29,9 +29,9 @@ jobs:
           dotnet build --configuration Release --output ./output
           popd
       - name: 'Prin publishing profile'
-        shell: pwsh
+        shell: zsh
         run: |
-          Write-Host ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          echo ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
