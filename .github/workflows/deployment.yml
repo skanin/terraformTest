@@ -17,6 +17,11 @@ jobs:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@v2
 
+      - name: 'Print publishing profile'
+        shell: bash
+        run: |
+          echo ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+
       - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
         uses: actions/setup-dotnet@v1
         with:
@@ -28,10 +33,6 @@ jobs:
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
           dotnet build --configuration Release --output ./output
           popd
-      - name: 'Prin publishing profile'
-        shell: zsh
-        run: |
-          echo ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
