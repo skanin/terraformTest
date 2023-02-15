@@ -21,11 +21,6 @@ jobs:
         environment: [dev]
 
     environment: ${{ matrix.environment }}
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
 
     steps:
       - name: Checkout
@@ -56,11 +51,11 @@ jobs:
           name: functions
           path: ${{ env.OUTPUT_PATH }}
 
-      - name: Uploading tools folder
-        uses: actions/upload-artifact@v2
-        with:
-          name: builds
-          path: Tools
+      # - name: Uploading tools folder
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: builds
+      #     path: Tools
 
   deploy:
     runs-on: windows-latest
@@ -72,11 +67,6 @@ jobs:
         environment: [dev]
 
     environment: ${{ matrix.environment }}
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
 
     steps:
       - name: 'Checkout GitHub Action'
@@ -98,29 +88,30 @@ jobs:
           name: builds
           path: ${{ env.OUTPUT_PATH }}
 
-      - name: Login via Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: '{"clientId":"${{ secrets.AZURE_AD_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_CLIENT_SECRET}}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_AD_TENANT_ID }}"}'
-          enable-AzPSSession: true
+      # - name: Login via Azure CLI
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: '{"clientId":"${{ secrets.AZURE_AD_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_CLIENT_SECRET}}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_AD_TENANT_ID }}"}'
+      #     enable-AzPSSession: true
 
-      - name: Enable JIT access for publishing
-        uses: azure/powershell@v1
-        with:
-          inlineScript: |
-            ${{ env.OUTPUT_PATH }}\ConfigureJIT.ps1 -WebAppName SanderLindberg-func -ResourceGroupName AZ-SanderLindberg-APIM-Apis-rg -RuleName "Pipeline" -Enable $true
-          azPSVersion: "latest"
+      # - name: Enable JIT access for publishing
+      #   uses: azure/powershell@v1
+      #   with:
+      #     inlineScript: |
+      #       ${{ env.OUTPUT_PATH }}\ConfigureJIT.ps1 -WebAppName SanderLindberg-func -ResourceGroupName AZ-SanderLindberg-APIM-Apis-rg -RuleName "Pipeline" -Enable $true
+          # azPSVersion: "latest"
           
       - name: Run Azure Functions Action
         uses: azure/functions-action@v1
         with:
-          app-name: ${{ steps.infrastructure.outputs.function-app-name }}
+          app-name: SanderLindberg-func
           package: ${{ env.OUTPUT_PATH }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
       
-      - name: Disable JIT access for publishing
-        if: ${{ always() }}
-        uses: azure/powershell@v1
-        with:
-          inlineScript: |
-            ${{ env.OUTPUT_PATH }}\ConfigureJIT.ps1 -WebAppName SanderLindberg-func -ResourceGroupName AZ-SanderLindberg-APIM-Apis-rg -RuleName "Pipeline" -Enable $false
-          azPSVersion: "latest"
+      # - name: Disable JIT access for publishing
+      #   if: ${{ always() }}
+      #   uses: azure/powershell@v1
+      #   with:
+      #     inlineScript: |
+      #       ${{ env.OUTPUT_PATH }}\ConfigureJIT.ps1 -WebAppName SanderLindberg-func -ResourceGroupName AZ-SanderLindberg-APIM-Apis-rg -RuleName "Pipeline" -Enable $false
+      #     azPSVersion: "latest"
