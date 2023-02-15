@@ -32,10 +32,13 @@ namespace Tofu.Deko.MyTestFunction
         [OpenApiResponseWithoutBody(HttpStatusCode.InternalServerError, Summary = "Internal server error", Description = "Internal server error occured")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "MyTestFunction/{id}")] HttpRequest req, int id)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
-            var helloWorld = await _repository.HelloWorld();
-            string responseMessage = $"{helloWorld} AzureFunction response. Id: {id}, Name: {req.Query["name"]}\nTester dette! Tester igjen. Test etter action!";
-            return new OkObjectResult(responseMessage);
+           var res = new FuncReq
+            {
+                Id = id.ToString(),
+                Message = $"Hello from me. You sent me Id: {id}"
+            };
+
+            return await Task.FromResult(new OkObjectResult(res));
         }
     }
 }
