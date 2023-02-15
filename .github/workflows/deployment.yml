@@ -82,11 +82,11 @@ jobs:
           name: functions
           path: ${{ env.OUTPUT_PATH }}
 
-      - name: Download function artifacts
-        uses: actions/download-artifact@v1
-        with:
-          name: builds
-          path: ${{ env.OUTPUT_PATH }}
+      # - name: Download function artifacts
+      #   uses: actions/download-artifact@v1
+      #   with:
+      #     name: builds
+      #     path: ${{ env.OUTPUT_PATH }}
 
       # - name: Login via Azure CLI
       #   uses: azure/login@v1
