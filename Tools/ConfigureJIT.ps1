@@ -21,16 +21,10 @@ function GetMyIp() {
 $myip = GetMyIp
 Write-Host "Detecting IP address: $myip"
 
-if ($WebAppName.Contains("-func")) {
-    $azFunc = "functionapp"
-} else {
-    $azFunc = "webapp"
-}
-
 Write-Host "Removing old JIT rule"
 az $azFunc config access-restriction remove -g $ResourceGroupName -n $WebAppName --rule-name "JIT_CICD_$RuleName"
 if ($Enable) {
     Write-Host "Enabling JIT rule"
-    az $azFunc config access-restriction add  -g $ResourceGroupName -n $WebAppName --rule-name "JIT_CICD_$RuleName" --action Allow --ip-address "$myip/32" --priority 100
+    az functionapp config access-restriction add  -g $ResourceGroupName -n $WebAppName --rule-name "JIT_CICD_$RuleName" --action Allow --ip-address "$myip/32" --priority 100
     Start-Sleep -Seconds 15
 }
