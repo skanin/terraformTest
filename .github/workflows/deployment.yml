@@ -18,6 +18,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Print vars
+        shell: bash
+        run: |
+          echo ${{ secrets.AZURE_AD_CLIENT_ID }}
+          echo ${{ secrets.AZURE_AD_TENANT_ID }}
+          echo ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
       - name: Setup .NET 6.0
         uses: actions/setup-dotnet@v1
         with:
@@ -64,6 +71,7 @@ jobs:
         with:
           name: builds
           path: ${{ env.OUTPUT_PATH }}
+
       - name: Login via Azure CLI
         uses: azure/login@v1
         with:
